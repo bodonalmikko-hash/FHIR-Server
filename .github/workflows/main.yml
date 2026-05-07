@@ -43,7 +43,7 @@ jobs:
 
       # 4. Build HAPI FHIR project
       - name: Build Project
-        run: mvn clean package -DskipTests
+        run: mvn clean install -DskipTests
 	
 
       # 5. Run Unit Tests
