@@ -44,12 +44,12 @@ jobs:
       # 4. Build HAPI FHIR project
       - name: Build Project
         run: mvn clean install -DskipTests
-	working-directory: hapi-fhir-jpaserver
+		working-directory: hapi-fhir-jpaserver
 
       # 5. Run Unit Tests
       - name: Run Tests
         run: mvn test
-	working-directory: hapi-fhir-jpaserver
+		working-directory: hapi-fhir-jpaserver
 
       # 6. Setup QEMU for ARM builds
       - name: Set up QEMU
