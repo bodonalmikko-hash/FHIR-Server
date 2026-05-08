@@ -1,4 +1,4 @@
-name: Simple CI/CD Demo
+name: HAPI FHIR CI/CD
 
 on:
   push:
@@ -6,27 +6,39 @@ on:
       - main
 
 jobs:
-  test-ci:
+  build-and-run:
     runs-on: ubuntu-latest
 
     steps:
 
-      # Step 1: Download Repository
-      - name: Checkout Code
+      # 1. Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 2: Show Files
+      # 2. Show files
       - name: Show Files
-        run: ls
+        run: ls -R
 
-      # Step 3: Print Message
-      - name: Run Simple Command
-        run: echo "CI/CD Pipeline is Working!"
+      # 3. Pull HAPI FHIR Docker Image
+      - name: Pull HAPI FHIR Image
+        run: docker pull hapiproject/hapi:latest
 
-      # Step 4: Show Current Date
-      - name: Show Date
-        run: date
+      # 4. Run HAPI FHIR Container
+      - name: Run HAPI FHIR
+        run: |
+          docker run -d \
+          --name hapi-fhir-server \
+          -p 8080:8080 \
+          hapiproject/hapi:latest
 
-      # Step 5: Finish
-      - name: Complete
-        run: echo "Pipeline Completed Successfully"
+      # 5. Show Running Containers
+      - name: Verify Container
+        run: docker ps
+
+      # 6. Wait for startup
+      - name: Wait for HAPI FHIR Startup
+        run: sleep 30
+
+      # 7. Check Application Logs
+      - name: Show Logs
+        run: docker logs hapi-fhir-server
