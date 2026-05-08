@@ -11,9 +11,8 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  IMAGE_NAME: docker.io/mikko1213/hapi-fhir-jpaserver
+  IMAGE_NAME: hapi-fhir-jpaserver
   JAVA_VERSION: 17
-  PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
   build-test-deploy:
@@ -21,7 +20,7 @@ jobs:
 
     steps:
 
-      # 1. Download repository source code
+      # 1. Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -32,7 +31,7 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
-      # 3. Cache Maven dependencies
+      # 3. Cache Maven Dependencies
       - name: Cache Maven Packages
         uses: actions/cache@v4
         with:
@@ -41,53 +40,23 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 4. Build HAPI FHIR project
+      # 4. Show Files (Debugging)
+      - name: Show Files
+        run: ls -R
+
+      # 5. Build Project
       - name: Build Project
         run: mvn clean install -DskipTests
 
-      # 5. Run Unit Tests
+      # 6. Run Tests
       - name: Run Tests
         run: mvn test
 
-# 6. Setup QEMU for ARM builds
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      # 7. Build Docker Image
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ env.IMAGE_NAME }} .
 
-      # 7. Setup Docker Buildx
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      # 8. Login to DockerHub
-      - name: Login to DockerHub
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # 9. Extract Docker metadata
-      - name: Docker Metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha
-            type=ref,event=branch
-            type=raw,value=latest
-
-      # 10. Build and Push Docker Image
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: ${{ env.PLATFORMS }}
-
-      # 11. Verify Docker Image
+      # 8. Verify Docker Image
       - name: Verify Docker Image
         run: docker images
-
-      
