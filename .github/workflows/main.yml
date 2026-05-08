@@ -10,7 +10,8 @@ on:
       - main
 
 env:
-  IMAGE_NAME: docker.io/YOUR_DOCKERHUB_USERNAME/hapi-fhir-jpaserver
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  IMAGE_NAME: docker.io/mikkobodonal/hapi-fhir-jpaserver
   JAVA_VERSION: 17
   PLATFORMS: linux/amd64,linux/arm64
 
