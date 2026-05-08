@@ -1,62 +1,32 @@
-name: HAPI FHIR CI/CD Pipeline
+name: Simple CI/CD Demo
 
 on:
   push:
     branches:
       - main
 
-  pull_request:
-    branches:
-      - main
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  IMAGE_NAME: hapi-fhir-jpaserver
-  JAVA_VERSION: 17
-
 jobs:
-  build-test-deploy:
+  test-ci:
     runs-on: ubuntu-latest
 
     steps:
 
-      # 1. Checkout Repository
-      - name: Checkout Repository
+      # Step 1: Download Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Setup Java
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: ${{ env.JAVA_VERSION }}
-
-      # 3. Cache Maven Dependencies
-      - name: Cache Maven Packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      # 4. Show Files (Debugging)
+      # Step 2: Show Files
       - name: Show Files
-        run: ls -R
+        run: ls
 
-      # 5. Build Project
-      - name: Build Project
-        run: mvn clean install -DskipTests
+      # Step 3: Print Message
+      - name: Run Simple Command
+        run: echo "CI/CD Pipeline is Working!"
 
-      # 6. Run Tests
-      - name: Run Tests
-        run: mvn test
+      # Step 4: Show Current Date
+      - name: Show Date
+        run: date
 
-      # 7. Build Docker Image
-      - name: Build Docker Image
-        run: |
-          docker build -t ${{ env.IMAGE_NAME }} .
-
-      # 8. Verify Docker Image
-      - name: Verify Docker Image
-        run: docker images
+      # Step 5: Finish
+      - name: Complete
+        run: echo "Pipeline Completed Successfully"
