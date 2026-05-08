@@ -6,11 +6,24 @@ on:
       - "image/v*"
     paths-ignore:
       - "charts/**"
-  pull_request:
-    branches: [master]
-    paths-ignore:
-      - "charts/**"
+  #pull_request:
+    #branches: [main]
+    #paths-ignore:
+      #- "charts/**"
 env:
   IMAGES: docker.io/hapiproject/hapi
   PLATFORMS: linux/amd64,linux/arm64/v8
 
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Container meta for default (distroless) image
+        id: docker_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGES }}
+          tags: |
+            type=match,pattern=image/(.*),group=1,enable=${{github.event_name != 'pull_request'}}
+           
